@@ -17,7 +17,9 @@
     min-width: 0;
     border-radius: 0.5rem;
     border-top: 4px solid var(--fb-accent, var(--bs-secondary, #6c757d));
-    background-color: var(--bs-tertiary-bg, #f1f3f5);
+    /* A literal colour: core's Bootstrap (5.1) has no --bs-tertiary-bg, and
+       the dark scheme below swaps this for core's own dark surface. */
+    background-color: #f1f3f5;
     scroll-snap-align: start;
 }
 
@@ -70,4 +72,23 @@
 .fb-content img:not(.smilie) {
     max-width: 100%;
     height: auto;
+}
+
+/* Dark scheme - core sets <html data-theme="dark"> and defines the
+   --mvcbb-dark-* colours (see MvcBB.App's site.css). Columns sit on core's
+   card surface; the cards inside them are a step lighter so they stand out.
+   Core's own dark rules already cover .card text, .text-muted and borders. */
+:root[data-theme="dark"] .fb-column {
+    background-color: var(--mvcbb-dark-surface, #201d26);
+    color: var(--mvcbb-dark-text, #e7e4ee);
+}
+
+:root[data-theme="dark"] .fb-column .fb-card {
+    background-color: var(--mvcbb-dark-surface-alt, #2a2732);
+    border-color: var(--mvcbb-dark-border, #3c3847);
+    border-left-color: var(--fb-accent, transparent);
+}
+
+:root[data-theme="dark"] .fb-board {
+    scrollbar-color: var(--mvcbb-dark-border, #3c3847) transparent;
 }

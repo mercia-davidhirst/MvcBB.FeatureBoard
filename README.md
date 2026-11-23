@@ -157,3 +157,13 @@ than stored.
    Board". It can be disabled again the same way at any time, with no restart
    required either way. While disabled, its pages, stylesheet and nav link
    all disappear (within about 10 seconds); its data is kept.
+
+## Upgrading to 1.0.1
+
+1.0.1 is a bug-fix release. Replace both DLLs and restart both processes.
+
+- In core's dark scheme, the board's columns stayed light grey, so their
+  headings were hard to read and the cards didn't match the rest of the
+  site. The columns and cards now use core's dark colours.
+- MvcBB.API re-runs the mod's install step because the version changed. It
+  makes no schema changes in this release.
