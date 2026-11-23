@@ -1,0 +1,213 @@
+@inject IBBCodeService BBCodeService
+@model RequestDetailsDto
+@{
+    var request = Model.Request;
+    var perms = Model.Permissions;
+    var smilies = ViewBag.Smilies as Dictionary<string, string>;
+    var colour = FeatureStatusDisplay.Colour(request.Status);
+    var darkText = colour is "warning" or "info" ? "text-dark" : "";
+    ViewData["Title"] = request.Title + " - Feature Board";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Feature Board</a></li>
+        <li class="breadcrumb-item"><a asp-action="Column" asp-route-status="@request.Status">@FeatureStatusDisplay.Name(request.Status)</a></li>
+        <li class="breadcrumb-item active text-truncate" aria-current="page">@request.Title</li>
+    </ol>
+</nav>
+
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+            <span class="badge bg-@colour @darkText"><i class="bi @FeatureStatusDisplay.Icon(request.Status)"></i> @FeatureStatusDisplay.Name(request.Status)</span>
+            <h1 class="h2 mb-0 fb-title">@request.Title</h1>
+        </div>
+        <p class="text-muted mb-3">
+            Requested by <strong>@request.AuthorUsername</strong> on @request.CreatedAt.ToString("d MMM yyyy")
+        </p>
+
+        @if (!perms.IsOpen)
+        {
+            <div class="alert alert-secondary small">
+                <i class="bi bi-lock"></i> This request has moved on from <strong>Requested</strong>, so its likes, comments and
+                additional information are closed.
+            </div>
+        }
+
+        <div class="card mb-4">
+            <div class="card-body fb-content">@Html.Raw(BBCodeService.ParseBBCode(request.Description, smilies))</div>
+        </div>
+
+        <section id="information" class="mb-4">
+            @if (Model.Additions.Count > 0 || perms.CanAddInformation)
+            {
+                <h2 class="h5">Additional information</h2>
+            }
+            @foreach (var addition in Model.Additions)
+            {
+                <div class="border-start border-3 border-@colour ps-3 mb-3">
+                    <div class="small text-muted">Added by the author on @addition.CreatedAt.ToString("d MMM yyyy - HH:mm")</div>
+                    <div class="fb-content">@Html.Raw(BBCodeService.ParseBBCode(addition.Content, smilies))</div>
+                    @if (addition.CanDelete)
+                    {
+                        <form asp-action="DeleteInformation" asp-route-id="@addition.Id" method="post"
+                              onsubmit="return confirm('Delete this information?');">
+                            <input type="hidden" name="requestId" value="@request.Id" />
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                        </form>
+                    }
+                </div>
+            }
+            @if (perms.CanAddInformation)
+            {
+                <details class="mb-2">
+                    <summary class="small">Add more information to your request</summary>
+                    <form asp-action="AddInformation" asp-route-id="@request.Id" method="post" class="mt-2">
+                        <partial name="~/Views/Shared/_BBCodeToolbar.cshtml" model="smilies" />
+                        @* id="Content": the shared BBCode toolbar inserts into the textarea with that id. *@
+                        <label for="Content" class="visually-hidden">Additional information</label>
+                        <textarea id="Content" name="content" class="form-control mb-2" rows="4" maxlength="4000" required></textarea>
+                        <button type="submit" class="btn btn-sm btn-primary">Add information</button>
+                    </form>
+                </details>
+            }
+        </section>
+
+        <section id="comments" class="mb-4">
+            <h2 class="h5">Comments (@Model.Comments.Count)</h2>
+
+            @if (perms.CanComment)
+            {
+                <form asp-action="AddComment" asp-route-id="@request.Id" method="post" class="mb-3">
+                    <div class="mb-2">
+                        <label for="comment-content" class="visually-hidden">Add a comment</label>
+                        <textarea id="comment-content" name="content" class="form-control" rows="3" maxlength="2000" required
+                                  placeholder="Add a comment (BBCode works here too)"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-sm btn-primary">Post comment</button>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted small">Comments are closed.</p>
+            }
+
+            @if (Model.Comments.Count == 0)
+            {
+                <p class="text-muted">No comments yet.</p>
+            }
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="border-top pt-2 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>@comment.Username</strong>
+                        <small class="text-muted">@comment.CreatedAt.ToString("d MMM yyyy - HH:mm")</small>
+                    </div>
+                    <div class="fb-content">@Html.Raw(BBCodeService.ParseBBCode(comment.Content, smilies))</div>
+                    @if (comment.CanDelete)
+                    {
+                        <form asp-action="DeleteComment" asp-route-id="@comment.Id" method="post" onsubmit="return confirm('Delete this comment?');">
+                            <input type="hidden" name="requestId" value="@request.Id" />
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0">Delete</button>
+                        </form>
+                    }
+                </div>
+            }
+        </section>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card mb-3">
+            <div class="card-body d-flex justify-content-between align-items-center">
+                <span><strong>@request.LikeCount</strong> @(request.LikeCount == 1 ? "member likes" : "members like") this</span>
+                @if (perms.CanLike)
+                {
+                    <form asp-action="Like" asp-route-id="@request.Id" method="post">
+                        <input type="hidden" name="liked" value="@(Model.LikedByCurrentUser ? "false" : "true")" />
+                        <button type="submit" class="btn btn-sm @(Model.LikedByCurrentUser ? "btn-danger" : "btn-outline-danger")">
+                            <i class="bi bi-heart@(Model.LikedByCurrentUser ? "-fill" : "")"></i> @(Model.LikedByCurrentUser ? "Liked" : "Like")
+                        </button>
+                    </form>
+                }
+                else if (perms.IsAuthor && perms.IsOpen)
+                {
+                    <span class="small text-muted">Your request</span>
+                }
+            </div>
+        </div>
+
+        @if (perms.CanChangeStatus)
+        {
+            <div class="card mb-3 border-@colour">
+                <div class="card-header"><h2 class="h6 mb-0"><i class="bi bi-shield-lock"></i> Change status</h2></div>
+                <div class="card-body">
+                    <form asp-action="ChangeStatus" asp-route-id="@request.Id" method="post" class="fb-status-form">
+                        <div class="mb-2">
+                            <label for="fb-status" class="form-label small">Move to</label>
+                            <select id="fb-status" name="status" class="form-select form-select-sm" required>
+                                <option value="" selected disabled>Choose a column…</option>
+                                @foreach (var status in FeatureStatusDisplay.BoardOrder.Where(s => s != request.Status))
+                                {
+                                    <option value="@status">@FeatureStatusDisplay.Name(status)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-2">
+                            <label for="fb-status-comment" class="form-label small">
+                                Comment <span class="fb-optional text-muted">(optional when discarding)</span>
+                            </label>
+                            <textarea id="fb-status-comment" name="comment" class="form-control form-control-sm" rows="3" maxlength="2000"
+                                      placeholder="Why it's moving - shown on the request"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-sm btn-primary">Change status</button>
+                    </form>
+                    <script>
+                        (function () {
+                            // Convenience only: the API requires the comment for every move except discarding.
+                            var select = document.getElementById('fb-status');
+                            var comment = document.getElementById('fb-status-comment');
+                            function sync() { comment.required = select.value !== '' && select.value !== 'Discarded'; }
+                            select.addEventListener('change', sync);
+                            sync();
+                        })();
+                    </script>
+                </div>
+            </div>
+        }
+
+        <div class="card mb-3">
+            <div class="card-header"><h2 class="h6 mb-0"><i class="bi bi-clock-history"></i> Status history</h2></div>
+            <ul class="list-group list-group-flush small">
+                <li class="list-group-item">
+                    <div><strong>Requested</strong> by @request.AuthorUsername</div>
+                    <div class="text-muted">@request.CreatedAt.ToString("d MMM yyyy - HH:mm")</div>
+                </li>
+                @foreach (var change in Model.History)
+                {
+                    var changeColour = FeatureStatusDisplay.Colour(change.ToStatus);
+                    <li class="list-group-item">
+                        <div>
+                            <span class="badge bg-@changeColour @(changeColour is "warning" or "info" ? "text-dark" : "")">@FeatureStatusDisplay.Name(change.ToStatus)</span>
+                            by @change.ChangedByUsername
+                        </div>
+                        <div class="text-muted">@change.CreatedAt.ToString("d MMM yyyy - HH:mm")</div>
+                        @if (!string.IsNullOrEmpty(change.Comment))
+                        {
+                            <div class="fb-content mt-1">@Html.Raw(BBCodeService.ParseBBCode(change.Comment, smilies))</div>
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+
+        @if (perms.CanDelete)
+        {
+            <form asp-action="Delete" asp-route-id="@request.Id" method="post" class="mb-3"
+                  onsubmit="return confirm('Delete this request, with its likes, comments and history? This can\'t be undone.');">
+                <button type="submit" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i> Delete request</button>
+            </form>
+        }
+    </div>
+</div>

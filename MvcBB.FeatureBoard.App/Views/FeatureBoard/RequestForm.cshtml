@@ -1,0 +1,45 @@
+@model RequestFormModel
+@{
+    ViewData["Title"] = "Request a feature";
+    var smilies = ViewBag.Smilies as Dictionary<string, string>;
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a asp-action="Index">Feature Board</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+    </ol>
+</nav>
+
+<div class="card">
+    <div class="card-header"><h1 class="h4 mb-0">@ViewData["Title"]</h1></div>
+    <div class="card-body">
+        <p class="text-muted">
+            Your request goes into the <strong>Requested</strong> column, where other members can like it and comment on it.
+            While it's there you can add more information to it. Once an administrator moves it on, likes, comments and
+            additions close.
+        </p>
+
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Title" class="form-label"></label>
+                <input asp-for="Title" class="form-control" maxlength="200" required placeholder="A short summary of the feature" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="Content" class="form-label">Description</label>
+                <partial name="~/Views/Shared/_BBCodeToolbar.cshtml" model="smilies" />
+                @* id="Content": the shared BBCode toolbar inserts into the textarea with that id. *@
+                <textarea id="Content" name="Description" class="form-control" rows="8" maxlength="4000" required
+                          placeholder="What should it do, and why would it help?">@Model.Description</textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit request</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </form>
+    </div>
+</div>

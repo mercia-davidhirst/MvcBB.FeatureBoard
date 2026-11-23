@@ -1,0 +1,10 @@
+<Solution>
+  <Project Path="../MvcBB/Solution/MvcBB.API.InMemory/MvcBB.API.InMemory.csproj" />
+  <Project Path="../MvcBB/Solution/MvcBB.API.PostgreSql/MvcBB.API.PostgreSql.csproj" />
+  <Project Path="../MvcBB/Solution/MvcBB.API.SQL/MvcBB.API.SQL.csproj" />
+  <Project Path="../MvcBB/Solution/MvcBB.ModKit/MvcBB.ModKit.csproj" />
+  <Project Path="../MvcBB/Solution/MvcBB.Shared/MvcBB.Shared.csproj" />
+  <Project Path="MvcBB.FeatureBoard.Api/MvcBB.FeatureBoard.Api.csproj" />
+  <Project Path="MvcBB.FeatureBoard.App/MvcBB.FeatureBoard.App.csproj" />
+  <Project Path="MvcBB.FeatureBoard.Tests/MvcBB.FeatureBoard.Tests.csproj" />
+</Solution>

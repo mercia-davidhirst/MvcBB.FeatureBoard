@@ -1,0 +1,73 @@
+/* MvcBB.FeatureBoard - served from the mod's DLL at /_mods/featureboard/css/featureboard.css */
+
+/* The board: five columns side by side, scrolling sideways when the screen
+   is too narrow for them (phones see about one and a bit at a time). */
+.fb-board {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(14rem, 1fr));
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scroll-snap-type: x proximity;
+}
+
+.fb-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border-radius: 0.5rem;
+    border-top: 4px solid var(--fb-accent, var(--bs-secondary, #6c757d));
+    background-color: var(--bs-tertiary-bg, #f1f3f5);
+    scroll-snap-align: start;
+}
+
+.fb-column-secondary { --fb-accent: var(--bs-secondary, #6c757d); }
+.fb-column-primary { --fb-accent: var(--bs-primary, #0d6efd); }
+.fb-column-info { --fb-accent: var(--bs-info, #0dcaf0); }
+.fb-column-warning { --fb-accent: var(--bs-warning, #ffc107); }
+.fb-column-success { --fb-accent: var(--bs-success, #198754); }
+
+.fb-column-header {
+    padding: 0.6rem 0.75rem 0.4rem;
+}
+
+.fb-column-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0 0.5rem 0.6rem;
+}
+
+/* Discarded ideas stay visible but step back. */
+.fb-column-muted .fb-card {
+    opacity: 0.75;
+}
+
+.fb-card {
+    border-left: 3px solid var(--fb-accent, transparent);
+}
+
+.fb-card-title,
+.fb-title,
+.fb-card-teaser {
+    overflow-wrap: anywhere;
+}
+
+.fb-card-teaser {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* BBCode output: core's renderer turns line breaks into <br />; pre-wrap
+   additionally keeps runs of spaces. Keep long words and images inside. */
+.fb-content {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.fb-content img:not(.smilie) {
+    max-width: 100%;
+    height: auto;
+}

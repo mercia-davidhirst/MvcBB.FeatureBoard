@@ -1,0 +1,60 @@
+@model BoardPageModel
+@{
+    ViewData["Title"] = "Feature Board";
+    var liked = Model.Board.LikedIds.ToHashSet();
+}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+    <h1 class="mb-0">Feature Board</h1>
+    <a asp-action="Create" class="btn btn-primary"><i class="bi bi-plus-lg"></i> Request a feature</a>
+</div>
+<p class="text-muted">
+    Suggest something you'd like to see on the site, and like or comment on other members' ideas while they're in
+    <strong>Requested</strong>. Administrators move requests across the board as they're planned, built and released.
+</p>
+
+<div class="btn-group btn-group-sm mb-3" role="group" aria-label="Show">
+    <a asp-action="Index" class="btn @(Model.Mine ? "btn-outline-secondary" : "btn-secondary")"
+       aria-current="@(Model.Mine ? null : "true")"><i class="bi bi-people"></i> All requests</a>
+    <a asp-action="Index" asp-route-mine="true" class="btn @(Model.Mine ? "btn-secondary" : "btn-outline-secondary")"
+       aria-current="@(Model.Mine ? "true" : null)"><i class="bi bi-person"></i> My requests</a>
+</div>
+@if (Model.Mine && Model.Board.Columns.All(c => c.TotalCount == 0))
+{
+    <p class="text-muted">You haven't requested anything yet. <a asp-action="Create">Request a feature</a>.</p>
+}
+
+<div class="fb-board mb-4" role="list">
+    @foreach (var status in FeatureStatusDisplay.BoardOrder)
+    {
+        var column = Model.Board.Columns.FirstOrDefault(c => c.Status == status) ?? new BoardColumnDto { Status = status };
+        var colour = FeatureStatusDisplay.Colour(status);
+        <section class="fb-column fb-column-@colour @(status == FeatureStatus.Discarded ? "fb-column-muted" : "")" role="listitem"
+                 aria-labelledby="fb-col-@((int)status)">
+            <header class="fb-column-header">
+                <h2 class="h6 mb-0" id="fb-col-@((int)status)">
+                    <i class="bi @FeatureStatusDisplay.Icon(status)"></i> @FeatureStatusDisplay.Name(status)
+                    <span class="badge rounded-pill bg-@colour @(colour is "warning" or "info" ? "text-dark" : "") ms-1">@column.TotalCount</span>
+                </h2>
+                <div class="small text-muted">@FeatureStatusDisplay.Hint(status)</div>
+            </header>
+            <div class="fb-column-body">
+                @if (column.Items.Count == 0)
+                {
+                    <div class="text-muted small fst-italic px-1">Nothing here yet.</div>
+                }
+                @foreach (var request in column.Items)
+                {
+                    <partial name="~/Views/FeatureBoard/_Card.cshtml"
+                             model="new RequestCardModel(request, liked.Contains(request.Id), Model.CurrentUserId, true)" />
+                }
+                @if (column.TotalCount > column.Items.Count)
+                {
+                    <a asp-action="Column" asp-route-status="@status" class="btn btn-sm btn-link w-100">
+                        View all @column.TotalCount
+                    </a>
+                }
+            </div>
+        </section>
+    }
+</div>
