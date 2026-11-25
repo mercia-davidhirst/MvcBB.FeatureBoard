@@ -30,6 +30,8 @@ namespace MvcBB.FeatureBoard.Api
         public const int MaxPerColumn = 100;
         public const int DefaultPageSize = 25;
         public const int MaxPageSize = 100;
+        public const int DefaultRecent = 5;
+        public const int MaxRecent = 25;
         private const int MaxPage = 100_000;
 
         private const string ClosedMessage =
@@ -73,6 +75,15 @@ namespace MvcBB.FeatureBoard.Api
             if (Viewer is not (int userId, _)) return Unauthorized();
             return Ok(_repository.GetByAuthor(userId));
         }
+
+        /// <summary>
+        /// The newest requests in any column but Discarded, newest first (the
+        /// home page card). Every member can see every request, so it's the
+        /// same for everyone.
+        /// </summary>
+        [HttpGet("requests/recent")]
+        public ActionResult<IEnumerable<FeatureRequest>> Recent(int count = DefaultRecent) =>
+            Ok(_repository.GetRecent(Math.Clamp(count, 1, MaxRecent)));
 
         // ================= Requests =================
 

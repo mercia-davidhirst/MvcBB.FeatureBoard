@@ -95,8 +95,24 @@ status history.
 ### On core pages (view slots)
 - **Stylesheet** (`layout.head`): the mod's `featureboard.css`, embedded in the
   DLL and served by MvcBB.App at `/_mods/featureboard/css/featureboard.css`.
+- **Newest requests card** (`home.right`): a "Feature Board" card on the home
+  page listing the 5 most recently made requests, newest first, from any
+  column except Discarded, each with its author and current column, linking
+  to the request.
+  Every signed-in member sees it, and the same list for everyone, since every
+  member can see every request. The list is cached for a minute, so a new
+  request can take up to a minute to appear. If the API can't be reached the
+  card is left out rather than breaking the page.
+- **New request alert, for Administrators** (`layout.navbar` and
+  `layout.toasts`): works like core's open-reports alert. A kanban icon in
+  the navbar carries a badge with the number of requests waiting in
+  Requested, and links to that column. `featureboard-alert.js` (embedded and
+  served like the stylesheet) polls `/FeatureBoard/RequestedCount` every 30
+  seconds, updates the badge, and shows a toast beside core's report toast
+  when the count goes up. Needs a core with those two slots; an older core
+  logs and ignores them, and the rest of the mod works as before.
 
-It doesn't render for guests.
+None of it renders for guests.
 
 ## Data providers
 
@@ -165,5 +181,23 @@ than stored.
 - In core's dark scheme, the board's columns stayed light grey, so their
   headings were hard to read and the cards didn't match the rest of the
   site. The columns and cards now use core's dark colours.
+- MvcBB.API re-runs the mod's install step because the version changed. It
+  makes no schema changes in this release.
+
+## Upgrading to 1.0.2
+
+Replace both DLLs and restart both processes.
+
+- Administrators get a new request alert, like core's open-reports alert: a
+  kanban icon in the navbar with a badge counting the requests waiting in
+  Requested, and a toast when a new one arrives while they're on a page.
+  See "On core pages (view slots)" above. It needs MvcBB 1.3.1 or later
+  (the `layout.navbar` and `layout.toasts` slots). On an older core the
+  alert doesn't appear and the rest of the mod works as before.
+- Every signed-in member gets a "Feature Board" card on the home page's right
+  column with the 5 newest requests (Discarded ones left out). See "On core pages (view slots)" above.
+  It uses a new API endpoint, `GET api/mods/featureboard/requests/recent`, so
+  replace the API DLL as well as the App's: until the API is upgraded the
+  card simply doesn't appear.
 - MvcBB.API re-runs the mod's install step because the version changed. It
   makes no schema changes in this release.

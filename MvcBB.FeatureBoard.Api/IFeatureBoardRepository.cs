@@ -23,6 +23,9 @@ namespace MvcBB.FeatureBoard.Api
         /// <summary>Every request by this member, newest first.</summary>
         IReadOnlyList<FeatureRequest> GetByAuthor(int authorUserId);
 
+        /// <summary>The newest <paramref name="count"/> requests in any column but Discarded, newest first.</summary>
+        IReadOnlyList<FeatureRequest> GetRecent(int count);
+
         FeatureRequest? GetRequest(int id);
 
         /// <summary>Adds a request in Requested.</summary>

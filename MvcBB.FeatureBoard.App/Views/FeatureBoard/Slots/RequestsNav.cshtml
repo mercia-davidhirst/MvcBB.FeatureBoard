@@ -1,0 +1,10 @@
+@model int
+@* layout.navbar, Administrators only: requests waiting in Requested. The
+   badge's id is what featureboard-alert.js updates. *@
+<li class="nav-item">
+    <a class="nav-link text-dark" asp-controller="FeatureBoard" asp-action="Column" asp-route-status="@FeatureStatus.Requested"
+       title="New feature requests" aria-label="New feature requests" data-bs-toggle="tooltip" data-bs-placement="bottom">
+        <i class="bi bi-kanban"></i>
+        <span id="featureRequestBadge" class="badge rounded-pill bg-info text-dark @(Model > 0 ? "" : "d-none")">@Model</span>
+    </a>
+</li>

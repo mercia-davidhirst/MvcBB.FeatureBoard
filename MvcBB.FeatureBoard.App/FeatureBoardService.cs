@@ -51,6 +51,14 @@ namespace MvcBB.FeatureBoard.App
                 .Append("&pageSize=").Append(pageSize.ToString(CultureInfo.InvariantCulture)).ToString())
             ?? new PagedRequestsDto();
 
+        // A one-card page of the Requested column: only its total is wanted.
+        public async Task<int> GetRequestedCountAsync() =>
+            (await GetColumnAsync(FeatureStatus.Requested, 1, 1)).TotalCount;
+
+        // An API older than 1.0.2 has no requests/recent and answers 404 (null here).
+        public async Task<IReadOnlyList<FeatureRequestDto>?> GetRecentRequestsAsync(int count) =>
+            await GetAsync<List<FeatureRequestDto>>(Base + "requests/recent?count=" + count.ToString(CultureInfo.InvariantCulture));
+
         public async Task<IReadOnlyList<FeatureRequestDto>> GetMyRequestsAsync() =>
             await GetAsync<List<FeatureRequestDto>>(Base + "requests/mine") ?? new List<FeatureRequestDto>();
 

@@ -10,6 +10,16 @@ namespace MvcBB.FeatureBoard.App
     {
         Task<BoardDto> GetBoardAsync(int perColumn);
         Task<PagedRequestsDto> GetColumnAsync(FeatureStatus status, int page, int pageSize);
+
+        /// <summary>How many requests are waiting in Requested (for the Administrators' new-request alert).</summary>
+        Task<int> GetRequestedCountAsync();
+
+        /// <summary>
+        /// The newest requests in any column but Discarded, newest first (for the home page
+        /// card). Null if the API is older than the App and doesn't offer them.
+        /// </summary>
+        Task<IReadOnlyList<FeatureRequestDto>?> GetRecentRequestsAsync(int count);
+
         Task<IReadOnlyList<FeatureRequestDto>> GetMyRequestsAsync();
         Task<RequestDetailsDto?> GetRequestAsync(int id);
         Task<FeatureRequestDto> CreateRequestAsync(string title, string description);

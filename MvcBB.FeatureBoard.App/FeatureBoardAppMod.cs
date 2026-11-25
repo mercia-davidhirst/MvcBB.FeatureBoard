@@ -38,6 +38,11 @@ namespace MvcBB.FeatureBoard.App
         public IEnumerable<ModSlotContribution> GetSlotContributions()
         {
             yield return new ModSlotContribution(CoreSlots.LayoutHead, typeof(FeatureBoardStylesheetViewComponent));
+            yield return new ModSlotContribution(CoreSlots.HomeRight, typeof(FeatureBoardHomeRecentViewComponent));
+            // The Administrators' new-request alert. A core without these slots
+            // logs and ignores them, and the rest of the mod works as before.
+            yield return new ModSlotContribution(CoreSlots.LayoutNavbar, typeof(FeatureBoardRequestsNavViewComponent));
+            yield return new ModSlotContribution(CoreSlots.LayoutToasts, typeof(FeatureBoardRequestsToastViewComponent));
         }
     }
 }

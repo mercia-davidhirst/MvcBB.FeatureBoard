@@ -86,6 +86,15 @@ namespace MvcBB.FeatureBoard.Api
                 ORDER BY x.CreatedAt DESC, x.Id DESC", new { AuthorUserId = authorUserId }).ToList();
         }
 
+        public IReadOnlyList<FeatureRequest> GetRecent(int count)
+        {
+            using var connection = _connectionFactory.CreateConnection();
+            return connection.Query<FeatureRequest>(RequestSelect + @"
+                WHERE x.Status <> 0
+                ORDER BY x.CreatedAt DESC, x.Id DESC
+                OFFSET 0 ROWS FETCH NEXT @Take ROWS ONLY", new { Take = count }).ToList();
+        }
+
         public FeatureRequest? GetRequest(int id)
         {
             using var connection = _connectionFactory.CreateConnection();

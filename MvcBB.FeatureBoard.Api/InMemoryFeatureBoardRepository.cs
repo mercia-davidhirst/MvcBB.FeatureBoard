@@ -80,6 +80,17 @@ namespace MvcBB.FeatureBoard.Api
             }
         }
 
+        public IReadOnlyList<FeatureRequest> GetRecent(int count)
+        {
+            lock (_store.Lock)
+            {
+                return _store.Requests.Where(r => r.Status != FeatureStatus.Discarded)
+                    .OrderByDescending(r => r.CreatedAt).ThenByDescending(r => r.Id)
+                    .Take(count)
+                    .Select(CopyRequest).ToList();
+            }
+        }
+
         public FeatureRequest? GetRequest(int id)
         {
             lock (_store.Lock)

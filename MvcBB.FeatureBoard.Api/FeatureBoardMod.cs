@@ -12,7 +12,7 @@ namespace MvcBB.FeatureBoard.Api
 
         public string Id => ModId;
         public string Name => "Feature Board";
-        public string Version => "1.0.1";
+        public string Version => "1.0.2";
 
         // Uses core's layout.head view slot, added in ModKit 1.1.0.
         public string MinCoreVersion => "1.1.0";

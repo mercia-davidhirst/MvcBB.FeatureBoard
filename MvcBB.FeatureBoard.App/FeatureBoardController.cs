@@ -226,6 +226,29 @@ namespace MvcBB.FeatureBoard.App
             return Redirect(Url.Action(nameof(Details), new { id = requestId }) + "#comments");
         }
 
+        // ================= New-request alert =================
+
+        /// <summary>
+        /// Administrators: how many requests are waiting in Requested. Polled by
+        /// featureboard-alert.js to refresh the navbar badge and show the toast
+        /// when a new request comes in, the same way core's open-reports alert works.
+        /// </summary>
+        [HttpGet]
+        [Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> RequestedCount()
+        {
+            try
+            {
+                return Json(new { count = await _service.GetRequestedCountAsync() });
+            }
+            catch (FeatureBoardServiceException)
+            {
+                // Not a zero: the script skips this tick rather than treating
+                // the next real count as a new request and toasting for it.
+                return StatusCode(503);
+            }
+        }
+
         // ================= Helpers =================
 
         /// <summary>

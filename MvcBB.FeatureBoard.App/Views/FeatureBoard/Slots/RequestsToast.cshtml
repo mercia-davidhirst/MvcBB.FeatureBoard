@@ -1,0 +1,16 @@
+@model int?
+@* layout.toasts, Administrators only. data-initial-count is the script's
+   baseline (left off when the API couldn't be reached, so the first poll
+   becomes the baseline instead). Bump the version when the script changes. *@
+<div id="newFeatureRequestToast" class="toast align-items-center text-bg-info border-0" role="alert" aria-live="polite" aria-atomic="true"
+     data-initial-count="@Model" data-count-url="@Url.Action("RequestedCount", "FeatureBoard")">
+    <div class="d-flex">
+        <div class="toast-body">
+            <i class="bi bi-kanban-fill me-2"></i>
+            <span id="newFeatureRequestToastText">New feature requests to review.</span>
+        </div>
+        <a class="btn btn-sm btn-light m-2" asp-controller="FeatureBoard" asp-action="Column" asp-route-status="@FeatureStatus.Requested">View</a>
+        <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    </div>
+</div>
+<script src="~/_mods/featureboard/js/featureboard-alert.js?v=1.0.1" defer></script>

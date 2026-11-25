@@ -339,4 +339,20 @@ public class FeatureBoardControllerTests
         var result = Value(h.As(AuthorId).Mine());
         Assert.Equal(new[] { mine.Id }, result.Select(r => r.Id));
     }
+
+    [Fact]
+    public void Recent_ListsTheNewestRequestsInAnyColumnButDiscarded_ForEveryMember()
+    {
+        var h = new ApiTestHarness();
+        var ids = Enumerable.Range(0, 7).Select(i => h.CreateRequest("Idea " + i, authorId: i % 2 == 0 ? AuthorId : MemberId).Id).ToList();
+        h.Move(ids[6], FeatureStatus.Discarded);
+        h.Move(ids[5], FeatureStatus.InProgress);
+
+        var recent = Value(h.As(MemberId).Recent());
+        Assert.Equal(new[] { ids[5], ids[4], ids[3], ids[2], ids[1] }, recent.Select(r => r.Id));
+        Assert.Equal(FeatureStatus.InProgress, recent.First().Status);
+
+        Assert.Single(Value(h.As(AuthorId).Recent(count: 0)));
+        Assert.Equal(6, Value(h.As(AuthorId).Recent(count: 500)).Count());
+    }
 }
